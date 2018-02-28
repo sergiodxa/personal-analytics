@@ -1,7 +1,8 @@
 require("now-env");
 const { parse } = require("url");
+const { stringify } = require("querystring");
 const { send } = require("micro");
-const slack = require("slackup");
+const fetch = require("node-fetch");
 
 const { REFERER, SLACK_API_TOKEN, CHANNEL = "#events" } = process.env;
 
@@ -11,6 +12,58 @@ if (!REFERER) {
 
 if (!SLACK_API_TOKEN) {
   throw new ReferenceError("Missing SLACK_API_TOKEN environment variable");
+}
+
+function getColor(type) {
+  switch (type) {
+    case "error": {
+      return "#ff5f56";
+    }
+    case "warning": {
+      return "#ffbd2f";
+    }
+    case "info": {
+      return "#067df7";
+    }
+    default: {
+      return "#27c93f";
+    }
+  }
+}
+
+async function slack({ action, description, type, message }) {
+  const response = await fetch("https://slack.com/api/chat.postMessage", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${SLACK_API_TOKEN}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      channel: CHANNEL,
+      as_user: false,
+      username: "sergiodxa.com",
+      text: message,
+      attachments: [
+        {
+          fallback: message,
+          color: getColor(type),
+          title: action,
+          text: description,
+          fields: [
+            {
+              title: "Type",
+              value: type,
+              short: true
+            }
+          ],
+          footer: "Analytics"
+        }
+      ]
+    })
+  });
+  console.log(response);
+  const body = await response.json();
+  console.log(body);
 }
 
 module.exports = async (req, res) => {
@@ -64,33 +117,37 @@ module.exports = async (req, res) => {
   switch (type) {
     case "error": {
       await slack({
-        token: SLACK_API_TOKEN,
-        channel: CHANNEL,
-        text: message
+        type,
+        action,
+        description,
+        message
       });
       console.error(message);
     }
     case "warning": {
       await slack({
-        token: SLACK_API_TOKEN,
-        channel: CHANNEL,
-        text: message
+        type,
+        action,
+        description,
+        message
       });
       console.warn(message);
     }
     case "info": {
       await slack({
-        token: SLACK_API_TOKEN,
-        channel: CHANNEL,
-        text: message
+        type,
+        action,
+        description,
+        message
       });
       console.info(message);
     }
     default: {
       await slack({
-        token: SLACK_API_TOKEN,
-        channel: CHANNEL,
-        text: message
+        type,
+        action,
+        description,
+        message
       });
       console.log(message);
     }

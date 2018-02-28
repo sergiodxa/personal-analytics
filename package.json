@@ -11,8 +11,8 @@
   },
   "dependencies": {
     "micro": "^9.1.0",
-    "now-env": "^3.0.4",
-    "slackup": "^2.2.2"
+    "node-fetch": "^2.0.0",
+    "now-env": "^3.0.4"
   },
   "devDependencies": {
     "micro-dev": "^2.2.0"
