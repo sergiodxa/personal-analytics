@@ -3,6 +3,9 @@
   "alias": "analytics.sergiodxa.com",
   "type": "npm",
   "env": {
-    "NODE_ENV": "production" 
+    "SLACK_API_TOKEN": "@slack_api_token",
+    "REFERER": "https://sergiodxa.com/",
+    "CHANNEL": "#events",
+    "NODE_ENV": "production"
   }
 }

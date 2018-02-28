@@ -1,9 +1,33 @@
+require("now-env");
 const { parse } = require("url");
 const { send } = require("micro");
+const slack = require("slackup");
 
-module.exports = (req, res) => {
+const { REFERER, SLACK_API_TOKEN, CHANNEL = "#events" } = process.env;
+
+if (!REFERER) {
+  throw new ReferenceError("Missing REFERER environment variable");
+}
+
+if (!SLACK_API_TOKEN) {
+  throw new ReferenceError("Missing SLACK_API_TOKEN environment variable");
+}
+
+module.exports = async (req, res) => {
   const url = parse(req.url, true);
   const { query: { action, description = "", type = "event" } } = url;
+
+  if (
+    req.headers.origin === REFERER &&
+    req.headers.referer.indexOf(REFERER) >= 0
+  ) {
+    return send(res, 401, {
+      error: {
+        code: "unauthorized",
+        message: "You are not authorized to use this API."
+      }
+    });
+  }
 
   if (!action) {
     return send(res, 400, {
@@ -35,19 +59,39 @@ module.exports = (req, res) => {
 
   if (description) message.push(description);
 
-  message = message.join(" - ")
+  message = message.join(" - ");
 
   switch (type) {
     case "error": {
+      await slack({
+        token: SLACK_API_TOKEN,
+        channel: CHANNEL,
+        text: message
+      });
       console.error(message);
     }
     case "warning": {
+      await slack({
+        token: SLACK_API_TOKEN,
+        channel: CHANNEL,
+        text: message
+      });
       console.warn(message);
     }
     case "info": {
+      await slack({
+        token: SLACK_API_TOKEN,
+        channel: CHANNEL,
+        text: message
+      });
       console.info(message);
     }
     default: {
+      await slack({
+        token: SLACK_API_TOKEN,
+        channel: CHANNEL,
+        text: message
+      });
       console.log(message);
     }
   }
