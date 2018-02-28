@@ -14,7 +14,7 @@ Send a request to `/` with the following querystring options:
 
 * `action` (string) the action performed by the user (required)
 * `description` (string) an string with more information (default empty)
-* `type` (string) an string indicating the type of action, it can be `log`, `info`, `warning` or `error` (default event)
+* `type` (string) an string indicating the type of action, it can be `event`, `info`, `warning` or `error` (default event)
 
 ### JavaScript
 
