@@ -1,0 +1,8 @@
+{
+  "name": "personal-analytics",
+  "alias": "analytics.sergiodxa.com",
+  "type": "npm",
+  "env": {
+    "NODE_ENV": "production" 
+  }
+}
