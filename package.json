@@ -6,6 +6,7 @@
   "author": "Sergio Xalambrí <hello@sergiodxa.com> (https://sergiodxa.com)",
   "license": "MIT",
   "scripts": {
+    "deploy": "now && now alias",
     "dev": "micro-dev",
     "start": "micro"
   },

@@ -1,7 +1,7 @@
 require("now-env");
 const { parse } = require("url");
 const { stringify } = require("querystring");
-const { send } = require("micro");
+const { send, json } = require("micro");
 const fetch = require("node-fetch");
 
 const { REFERER, SLACK_API_TOKEN, CHANNEL = "#events" } = process.env;
@@ -61,14 +61,28 @@ async function slack({ action, description, type, message }) {
       ]
     })
   });
-  console.log(response);
-  const body = await response.json();
-  console.log(body);
+}
+
+async function getData(req) {
+  const url = parse(req.url, true);
+  if (url.query && url.query.action) {
+    return url.query;
+  }
+  return await json(req);
 }
 
 module.exports = async (req, res) => {
+  if (req.method !== "POST") {
+    return send(res, 405, {
+      error: {
+        code: "method-not-allowed",
+        message: "The method you used to fetch the API is not supported."
+      }
+    });
+  }
+
   const url = parse(req.url, true);
-  const { query: { action, description = "", type = "event" } } = url;
+  const { action, description = "", type = "event" } = await getData(req);
 
   if (
     req.headers.origin === REFERER &&
