@@ -6,6 +6,8 @@
     "SLACK_API_TOKEN": "@slack_api_token",
     "REFERER": "https://sergiodxa.com/",
     "CHANNEL": "#events",
-    "NODE_ENV": "production"
+    "NODE_ENV": "production",
+    "MONGO_DB_URL": "@analytics_db_url",
+    "MONGO_DB_NAME": "@analytics_db_name"
   }
 }

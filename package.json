@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "micro": "^9.1.0",
+    "mongodb": "^3.0.5",
     "node-fetch": "^2.0.0",
     "now-env": "^3.0.4"
   },

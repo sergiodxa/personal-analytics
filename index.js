@@ -31,7 +31,18 @@ function getColor(type) {
   }
 }
 
-async function slack({ action, description, type, message }) {
+function saveOnDB(db, { type, ...document }) {
+  const collection = db.collection(type);
+
+  return new Promise((resolve, reject) => {
+    collection.insert([document], (error, respoonse) => {
+      if (error) return reject(error);
+      resolve(respoonse);
+    });
+  });
+}
+
+async function slack({ action, description, type, message, source }) {
   const response = await fetch("https://slack.com/api/chat.postMessage", {
     method: "POST",
     headers: {
@@ -54,6 +65,11 @@ async function slack({ action, description, type, message }) {
               title: "Type",
               value: type,
               short: true
+            },
+            {
+              title: "Source",
+              value: source,
+              short: true
             }
           ],
           footer: "Analytics"
@@ -61,6 +77,25 @@ async function slack({ action, description, type, message }) {
       ]
     })
   });
+}
+
+function log({ type, message }) {
+  switch (type) {
+    case "error": {
+      console.error(message);
+    }
+    case "warning": {
+      console.warn(message);
+    }
+    case "info": {
+      console.info(message);
+    }
+    default: {
+      console.log(message);
+    }
+  }
+
+  return Promise.resolve();
 }
 
 async function getData(req) {
@@ -71,7 +106,7 @@ async function getData(req) {
   return await json(req);
 }
 
-module.exports = async (req, res) => {
+const main = async (db, req, res) => {
   if (req.method !== "POST") {
     return send(res, 405, {
       error: {
@@ -81,8 +116,9 @@ module.exports = async (req, res) => {
     });
   }
 
-  const url = parse(req.url, true);
-  const { action, description = "", type = "event" } = await getData(req);
+  const { action, description = "", type = "event", source } = await getData(
+    req
+  );
 
   if (
     req.headers.origin === REFERER &&
@@ -128,44 +164,31 @@ module.exports = async (req, res) => {
 
   message = message.join(" - ");
 
-  switch (type) {
-    case "error": {
-      await slack({
-        type,
-        action,
-        description,
-        message
-      });
-      console.error(message);
-    }
-    case "warning": {
-      await slack({
-        type,
-        action,
-        description,
-        message
-      });
-      console.warn(message);
-    }
-    case "info": {
-      await slack({
-        type,
-        action,
-        description,
-        message
-      });
-      console.info(message);
-    }
-    default: {
-      await slack({
-        type,
-        action,
-        description,
-        message
-      });
-      console.log(message);
-    }
-  }
+  await Promise.all([
+    saveOnDB(db, {
+      type,
+      action,
+      description,
+      source
+    }),
+
+    slack({
+      type,
+      action,
+      description,
+      message,
+      source
+    }),
+
+    log({ type, message })
+  ]);
 
   return { message };
 };
+
+const setup = async handler => {
+  const db = await require("./lib/db");
+  return handler.bind(null, db);
+};
+
+module.exports = setup(main);
