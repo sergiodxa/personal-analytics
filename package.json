@@ -11,8 +11,10 @@
     "start": "micro"
   },
   "dependencies": {
+    "date-fns": "^1.29.0",
     "micro": "^9.1.0",
     "mongodb": "^3.0.5",
+    "ms": "^2.1.1",
     "node-fetch": "^2.0.0",
     "now-env": "^3.0.4"
   },
