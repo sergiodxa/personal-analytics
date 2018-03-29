@@ -16,7 +16,8 @@
     "mongodb": "^3.0.5",
     "ms": "^2.1.1",
     "node-fetch": "^2.0.0",
-    "now-env": "^3.0.4"
+    "now-env": "^3.0.4",
+    "ua-parser-js": "^0.7.17"
   },
   "devDependencies": {
     "micro-dev": "^2.2.0"
