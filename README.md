@@ -10,7 +10,7 @@ Each request is an action which will be simple logged in the terminal for future
 
 ### Endpoint
 
-Send a request to `/` with the following querystring options:
+Send a request to any pathname with the following querystring options:
 
 * `action` (string) the action performed by the user (required)
 * `description` (string) an string with more information (default empty)
