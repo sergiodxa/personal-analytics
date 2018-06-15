@@ -1,5 +1,6 @@
 require("now-env");
 const { send } = require("micro");
+const cors = require("micro-cors");
 
 const get = require("./lib/get");
 const post = require("./lib/post");
@@ -25,7 +26,7 @@ const main = async (db, req, res) => {
 
 const setup = async handler => {
   const db = await require("./lib/db");
-  return handler.bind(null, db);
+  return cors()(handler.bind(null, db));
 };
 
 module.exports = setup(main);
